@@ -23,12 +23,14 @@ public class CassandraClusterFactory
         this.connectToCluster = connectToCluster();
     }
 
+    @Override
     protected boolean createKeys(List<Host> list) {
         Metadata md = this.connectToCluster.getMetadata();
         list.addAll(md.getAllHosts());
         return true;
     }
 
+    @Override
     protected Node createNodeForKey(Host key) {
         BeanNode node = null;
         try {
@@ -42,40 +44,47 @@ public class CassandraClusterFactory
     }
 
     private Cluster connectToCluster() {
-        Cluster cluster = Cluster.builder().addContactPointsWithPorts(Collections.singleton(new InetSocketAddress("some-ip-adddress", 9042))).build();
-
+        Cluster cluster = Cluster.builder().
+                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress("some-ip-adddress", 9042))).
+                build();
         cluster.register(this);
         System.out.println("Connected to cluster " + cluster.getClusterName());
         return cluster;
     }
 
+    @Override
     public void onAdd(Host host) {
         refresh(true);
         System.out.println("added: " + host);
         StatusDisplayer.getDefault().setStatusText("added: " + host);
     }
 
+    @Override
     public void onUp(Host host) {
         refresh(true);
         System.out.println("upped: " + host);
         StatusDisplayer.getDefault().setStatusText("upped: " + host);
     }
 
+    @Override
     public void onSuspected(Host host) {
         refresh(true);
         System.out.println("suspected: " + host);
         StatusDisplayer.getDefault().setStatusText("suspected: " + host);
     }
 
+    @Override
     public void onDown(Host host) {
         refresh(true);
         System.out.println("downed: " + host);
         StatusDisplayer.getDefault().setStatusText("downed: " + host);
     }
 
+    @Override
     public void onRemove(Host host) {
         refresh(true);
         System.out.println("removed: " + host);
         StatusDisplayer.getDefault().setStatusText("removed: " + host);
     }
+    
 }
