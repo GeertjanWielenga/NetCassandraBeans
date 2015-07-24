@@ -3,6 +3,7 @@ package com.ncb;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Metadata;
+import com.datastax.driver.core.Session;
 import java.beans.IntrospectionException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -10,44 +11,55 @@ import java.util.List;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
-public class CassandraClusterFactory
-        extends ChildFactory.Detachable<Host>
+class CassandraClusterFactory extends ChildFactory.Detachable<Cluster>
         implements Host.StateListener {
 
     Cluster connectToCluster;
+    Session session;
 
     public CassandraClusterFactory() {
         this.connectToCluster = connectToCluster();
     }
 
     @Override
-    protected boolean createKeys(List<Host> list) {
-        Metadata md = this.connectToCluster.getMetadata();
-        list.addAll(md.getAllHosts());
+    protected boolean createKeys(List<Cluster> list) {
+//        Metadata md = this.connectToCluster.getMetadata();
+//        list.addAll(md.getAllHosts());
+        list.add(connectToCluster);
         return true;
     }
 
     @Override
-    protected Node createNodeForKey(Host key) {
-        BeanNode node = null;
+    protected Node createNodeForKey(Cluster key) {
+        ClusterNode node = null;
         try {
-            node = new BeanNode(key);
-            node.setDisplayName(key.getAddress().getHostName());
-            node.setShortDescription(key.getAddress().getHostAddress());
+            node = new ClusterNode(key);
         } catch (IntrospectionException ex) {
             Exceptions.printStackTrace(ex);
         }
         return node;
     }
 
+    private class ClusterNode extends BeanNode {
+
+        public ClusterNode(Cluster key) throws IntrospectionException {
+            super(key, Children.create(new CassandraContainerFactory(key, session), true));
+            setDisplayName(key.getClusterName());
+        }
+    }
+
     private Cluster connectToCluster() {
         Cluster cluster = Cluster.builder().
-                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress("some-ip-adddress", 9042))).
+                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress("127.0.0.1", 9042))).
                 build();
         cluster.register(this);
+        session = cluster.connect();
         System.out.println("Connected to cluster " + cluster.getClusterName());
         return cluster;
     }
@@ -86,5 +98,5 @@ public class CassandraClusterFactory
         System.out.println("removed: " + host);
         StatusDisplayer.getDefault().setStatusText("removed: " + host);
     }
-    
+
 }
