@@ -72,7 +72,7 @@ public class CassandraContainerFactory
     private class KeySpaceNode extends BeanNode {
 
         public KeySpaceNode(CassandraContainerFactory.Key key, Cluster cluster) throws IntrospectionException {
-            super(key, Children.create(new KeyspaceChildFactory(cluster, session), true), Lookups.singleton(key));
+            super(key, Children.create(new KeyspaceContainerChildFactory(cluster, session), true), Lookups.singleton(key));
             setDisplayName("Keyspaces");
         }
     }

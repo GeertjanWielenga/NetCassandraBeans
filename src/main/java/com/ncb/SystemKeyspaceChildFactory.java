@@ -12,36 +12,41 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.Lookups;
 
-class KeyspaceChildFactory extends ChildFactory<KeyspaceMetadata> {
+class SystemKeyspaceChildFactory extends ChildFactory<KeyspaceMetadata> {
 
     private final Cluster cluster;
     private final Session session;
 
-    public KeyspaceChildFactory(Cluster cluster, Session session) {
+    public SystemKeyspaceChildFactory(Cluster cluster, Session session) {
         this.cluster = cluster;
         this.session = session;
     }
 
     @Override
     protected boolean createKeys(List<KeyspaceMetadata> list) {
-        list.addAll(cluster.getMetadata().getKeyspaces());
+        List<KeyspaceMetadata> keyspaces = cluster.getMetadata().getKeyspaces();
+        for (KeyspaceMetadata keyspace : keyspaces) {
+            if (keyspace.getName().equals("OpsCenter") || keyspace.getName().equals("system_traces") || (keyspace.getName().equals("system"))) {
+                list.add(keyspace);
+            }
+        }
         return true;
     }
 
     @Override
     protected Node createNodeForKey(KeyspaceMetadata key) {
-        KeyspaceNode node = null;
+        SystemKeyspaceNode node = null;
         try {
-            node = new KeyspaceNode(key);
+            node = new SystemKeyspaceNode(key);
         } catch (IntrospectionException ex) {
             Exceptions.printStackTrace(ex);
         }
         return node;
     }
-    
-    private class KeyspaceNode extends BeanNode {
-        public KeyspaceNode(KeyspaceMetadata bean) throws IntrospectionException {
-            super(bean, Children.create(new TableChildFactory(bean, session), true), Lookups.singleton(bean));
+
+    private class SystemKeyspaceNode extends BeanNode {
+        public SystemKeyspaceNode(KeyspaceMetadata bean) throws IntrospectionException {
+            super(bean, Children.create(new SystemTableChildFactory(bean, session), true), Lookups.singleton(bean));
             setDisplayName(bean.getName());
         }
     }
