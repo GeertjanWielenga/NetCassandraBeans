@@ -1,8 +1,10 @@
 package com.ncb;
 
 import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.TableMetadata;
 import java.awt.event.ActionEvent;
@@ -67,7 +69,9 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                     writer = io.getOut();
                     ResultSet rs = session.execute("select * from " + tm.getKeyspace().getName() + "." + tm.getName());
                     writeColumnNames(rs, writer);
+                    writeColumnContent(rs, writer);
                 }
+
                 private void writeColumnNames(ResultSet rs, OutputWriter writer) {
                     int lengthOfNames = 0;
                     ColumnDefinitions columnDefinitions = rs.getColumnDefinitions();
@@ -84,6 +88,52 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                     //as characters in the names together with the spaces and pipes
                     for (int j = 0; j < (lengthOfNames - 1) + (noOfColumnDefinitions * 3); j++) {
                         writer.print("-");
+                    }
+                    writer.println("");
+                }
+
+                private void writeColumnContent(ResultSet rs, OutputWriter writer) {
+                    for (Row r : rs.all()) {
+                        String content = "undefined";
+                        ColumnDefinitions columnDefinitions = rs.getColumnDefinitions();
+                        for (ColumnDefinitions.Definition cd : columnDefinitions) {
+                            String name = cd.getName();
+                            if (cd.getType() == DataType.cint()) {
+                                content = String.valueOf(r.getInt(name));
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.varchar()) {
+                                content = r.getString(name);
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.uuid()) {
+                                content = r.getUUID(name).toString();
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.cfloat()) {
+                                content = String.valueOf(r.getFloat(name));
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.cdouble()) {
+                                content = String.valueOf(r.getDouble(name));
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.list(DataType.text())) {
+                                content = "list of items";
+                                writer.print(content);
+                            }
+                            if (cd.getType() == DataType.timestamp()) {
+                                content = r.getDate(name).toString();
+                                writer.print(content);
+                            }
+                            int lengthOfColumn = name.length();
+                            int lengthOfContent = content.length();
+                            for (int j = 0; j < lengthOfColumn-lengthOfContent; j++) {
+                                writer.print(" ");
+                            }
+                            writer.print(" | ");
+                        }
+                        writer.println("");
                     }
                     writer.println("");
                 }
