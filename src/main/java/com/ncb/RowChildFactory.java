@@ -46,41 +46,38 @@ class RowChildFactory extends ChildFactory<ColumnDefinitions.Definition> {
     }
 
     private class RowNode extends BeanNode {
-
         ColumnDefinitions.Definition key = null;
-
         public RowNode(ColumnDefinitions.Definition key) throws IntrospectionException {
             super(key);
             this.key = key;
             setDisplayName(key.getName());
         }
-
         @Override
         public PropertySet[] getPropertySets() {
             Set set = Sheet.createPropertiesSet();
             for (int i = 0; i < cds.size(); i++) {
                 ColumnDefinitions.Definition def = cds.asList().get(i);
-                PropertySupport.ReadOnly<String> ValuePropertySupport = ValuePropertySupport(def);
-                ValuePropertySupport.setValue("suppressCustomEditor", Boolean.TRUE);
-                set.put(ValuePropertySupport);
+                set.put(new ValuePropertySupport(def));
             }
             PropertySet[] original = super.getPropertySets();
-            PropertySet[] withLayer = new PropertySet[original.length + 1];
-            System.arraycopy(original, 0, withLayer, 0, original.length);
-            withLayer[withLayer.length - 1] = set;
-            return withLayer;
+            PropertySet[] withNewProps = new PropertySet[original.length + 1];
+            System.arraycopy(original, 0, withNewProps, 0, original.length);
+            withNewProps[withNewProps.length - 1] = set;
+            return withNewProps;
         }
-
-        private PropertySupport.ReadOnly<String> ValuePropertySupport(ColumnDefinitions.Definition def) {
-            return new PropertySupport.ReadOnly<String>(
-                    def.getName(), String.class, def.getName(), null) {
-                        @Override
-                        public String getValue() throws IllegalAccessException, InvocationTargetException {
-                            getValueFromRows(rs, def);
-                            return content;
-                        }
-                    };
-        }
+        private class ValuePropertySupport extends PropertySupport.ReadOnly<String> {
+            private final ColumnDefinitions.Definition def;
+            public ValuePropertySupport(ColumnDefinitions.Definition def) {
+                super(def.getName(), String.class, def.getName(), def.getName());
+                this.def = def;
+                setValue("suppressCustomEditor", Boolean.TRUE);
+            }
+            @Override
+            public String getValue() throws IllegalAccessException, InvocationTargetException {
+                getValueFromRows(rs, def);
+                return content;
+            }
+        } 
     }
 
     private void getValueFromRows(ResultSet rs, ColumnDefinitions.Definition cd) {
