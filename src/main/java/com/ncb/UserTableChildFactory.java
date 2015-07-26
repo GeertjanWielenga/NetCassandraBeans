@@ -136,6 +136,11 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
         }
 
         @Override
+        public Action getPreferredAction() {
+            return SystemAction.get(OpenAction.class);
+        }
+
+        @Override
         public Action[] getActions(boolean context) {
             return new Action[]{SystemAction.get(OpenAction.class), new AbstractAction("Dump Data") {
                 @Override
