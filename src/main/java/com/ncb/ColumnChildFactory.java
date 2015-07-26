@@ -3,6 +3,7 @@ package com.ncb;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnMetadata;
 import com.datastax.driver.core.KeyspaceMetadata;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.TableMetadata;
 import java.beans.IntrospectionException;
 import java.util.List;
