@@ -14,15 +14,11 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.table.TableColumnModel;
-import org.netbeans.swing.etable.ETableColumn;
-import org.netbeans.swing.etable.ETableColumnModel;
-import org.netbeans.swing.outline.Outline;
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableModel;
+import org.netbeans.swing.etable.ETable;
 import org.openide.actions.OpenAction;
 import org.openide.cookies.OpenCookie;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.view.OutlineView;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
@@ -47,11 +43,13 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
         this.key = key;
         this.session = session;
     }
+
     @Override
     protected boolean createKeys(List<TableMetadata> list) {
         list.addAll(key.getTables());
         return true;
     }
+
     @Override
     protected Node createNodeForKey(TableMetadata key) {
         UserTableNode node = null;
@@ -63,38 +61,19 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
         return node;
     }
 
-    private class UserTableView extends TopComponent implements ExplorerManager.Provider {
-        private final ExplorerManager em = new ExplorerManager();
-        private UserTableView(String tmdName, ResultSet rs) {
-            setDisplayName(tmdName);
+    private class UserTableView extends TopComponent {
+        private UserTableView(TableMetadata tmd, ResultSet rs) {
+            setDisplayName(tmd.getName() + " in " + tmd.getKeyspace().getName());
             setLayout(new BorderLayout());
-            try {
-                em.setRootContext(new RootNode(rs));
-                OutlineView ov = new OutlineView();
-                Outline outline = ov.getOutline();
-                for (ColumnDefinitions.Definition cd : rs.getColumnDefinitions()) {
-                    String name = cd.getName();
-                    ov.addPropertyColumn(name, name, cd.getKeyspace());
-                }
-                outline.setRootVisible(false);
-                TableColumnModel columnModel = outline.getColumnModel();
-                ETableColumn column0 = (ETableColumn) columnModel.getColumn(0);
-                ((ETableColumnModel) columnModel).setColumnHidden(column0, true);
-                add(ov, BorderLayout.CENTER);
-                associateLookup(Lookups.singleton(rs));
-            } catch (IntrospectionException ex) {
-                Exceptions.printStackTrace(ex);
+            DefaultTableModel model = new DefaultTableModel();
+            ETable table = new ETable(model);
+            for (int i = 0; i < rs.getColumnDefinitions().size(); i++) {
+                ColumnDefinitions.Definition cd = rs.getColumnDefinitions().asList().get(i);
+                model.addColumn(cd.getName());
             }
-        }
-        @Override
-        public ExplorerManager getExplorerManager() {
-            return em;
-        }
-    }
-
-    private class RootNode extends AbstractNode {
-        public RootNode(ResultSet rs) throws IntrospectionException {
-            super(Children.create(new RowChildFactory(rs), true));
+            JScrollPane scrollPane = new JScrollPane(table);
+            add(scrollPane, BorderLayout.CENTER);
+            associateLookup(Lookups.singleton(rs));
         }
     }
 
@@ -116,7 +95,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                 public void open() {
                     TopComponent tc = findTopComponent(rs);
                     if (tc == null) {
-                        tc = new UserTableView(tmd.getName(), rs);
+                        tc = new UserTableView(tmd, rs);
                         tc.open();
                     }
                     tc.requestActive();
