@@ -10,8 +10,10 @@ import com.datastax.driver.core.TableMetadata;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.beans.IntrospectionException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JScrollPane;
@@ -71,10 +73,58 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                 ColumnDefinitions.Definition cd = rs.getColumnDefinitions().asList().get(i);
                 model.addColumn(cd.getName());
             }
+            for (Row r : rs.all()) {
+                List<String> list = new ArrayList<String>();
+                ColumnDefinitions columnDefinitions = rs.getColumnDefinitions();
+                for (ColumnDefinitions.Definition cd : columnDefinitions) {
+                    String name = cd.getName();
+                    if (cd.getType() == DataType.cint()) {
+                        list.add(String.valueOf(r.getInt(name)));
+                    }
+                    if (cd.getType() == DataType.varchar()) {
+                        list.add(r.getString(name));
+                    }
+                    if (cd.getType() == DataType.uuid()) {
+                        list.add(r.getUUID(name).toString());
+                    }
+                    if (cd.getType() == DataType.counter()) {
+                        list.add(String.valueOf(r.getInt(name)));
+                    }
+                    if (cd.getType() == DataType.timeuuid()) {
+                        list.add(r.getString(name));
+                    }
+                    if (cd.getType() == DataType.cfloat()) {
+                        list.add(String.valueOf(r.getFloat(name)));
+                    }
+                    if (cd.getType() == DataType.cdouble()) {
+                        list.add(String.valueOf(r.getDouble(name)));
+                    }
+                    if (cd.getType() == DataType.list(DataType.text())) {
+                         list.add(r.getString(name));
+                    }
+                    if (cd.getType() == DataType.timestamp()) {
+                        list.add(r.getDate(name).toString());
+                    }
+                }
+                model.addRow(list.toArray());
+            }
             JScrollPane scrollPane = new JScrollPane(table);
             add(scrollPane, BorderLayout.CENTER);
             associateLookup(Lookups.singleton(rs));
         }
+    }
+    
+    public static String reorderTimeUUId(String originalTimeUUID) {
+        StringTokenizer tokens = new StringTokenizer(originalTimeUUID, "-");
+        if (tokens.countTokens() == 5) {
+            String time_low = tokens.nextToken();
+            String time_mid = tokens.nextToken();
+            String time_high_and_version = tokens.nextToken();
+            String variant_and_sequence = tokens.nextToken();
+            String node = tokens.nextToken();
+            return time_high_and_version + '-' + time_mid + '-' + time_low + '-' + variant_and_sequence + '-' + node;
+        }
+        return originalTimeUUID;
     }
 
     private class UserTableNode extends BeanNode {
