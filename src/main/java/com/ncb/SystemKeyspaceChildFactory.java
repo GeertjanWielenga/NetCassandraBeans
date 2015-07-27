@@ -7,11 +7,13 @@ import java.beans.IntrospectionException;
 import java.util.List;
 import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
 class SystemKeyspaceChildFactory extends ChildFactory<KeyspaceMetadata> {
@@ -61,7 +63,7 @@ class SystemKeyspaceChildFactory extends ChildFactory<KeyspaceMetadata> {
         }
         @Override
         public Action[] getActions(boolean context) {
-            return null;
+            return new Action[]{SystemAction.get(OpenLocalExplorerAction.class)};
         }
     }
 

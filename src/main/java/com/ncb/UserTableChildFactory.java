@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.UUID;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.swing.etable.ETable;
 import org.openide.actions.OpenAction;
+import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.cookies.OpenCookie;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
@@ -176,7 +176,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
 
         @Override
         public Action[] getActions(boolean context) {
-            return new Action[]{SystemAction.get(OpenAction.class), new AbstractAction("Dump Data") {
+            return new Action[]{SystemAction.get(OpenAction.class), SystemAction.get(OpenLocalExplorerAction.class), new AbstractAction("Dump Data") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     final String tmdName = tmd.getName();

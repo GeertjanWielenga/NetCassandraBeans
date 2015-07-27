@@ -12,6 +12,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
@@ -19,6 +20,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
+import org.openide.util.actions.SystemAction;
 
 class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implements Host.StateListener {
 
@@ -81,7 +83,7 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         }
         @Override
         public Action[] getActions(boolean context) {
-            return null;
+            return new Action[]{SystemAction.get(OpenLocalExplorerAction.class)};
         }
     }
 
