@@ -13,6 +13,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
@@ -58,6 +59,7 @@ public class CassandraTab
                 public void create() throws IOException {
                     NotifyDescriptor.InputLine msg = new NotifyDescriptor.InputLine(
                             Bundle.LBL_NewProp_dialog_title1(), Bundle.MSG_NewProp_dialog_host());
+                    msg.setInputText("127.0.0.1");
                     DialogDisplayer.getDefault().notify(msg);
                     String key = msg.getInputText();
                     if ("".equals(key)) {
@@ -65,11 +67,12 @@ public class CassandraTab
                     }
                     msg = new NotifyDescriptor.InputLine(
                             Bundle.LBL_NewProp_dialog_title2(), Bundle.MSG_NewProp_dialog_port());
+                    msg.setInputText("9042");
                     DialogDisplayer.getDefault().notify(msg);
                     String value = msg.getInputText();
-                    StatusDisplayer.getDefault().setStatusText(value);
-//                    System.setProperty(key, value);
-//                    PropertiesNotifier.changed();
+                    StatusDisplayer.getDefault().setStatusText(key+":"+value);
+                    NbPreferences.forModule(CassandraTab.class).put("cassandraCluster", key+":"+value);
+                    PropertiesNotifier.changed();
                 }
             }
         };

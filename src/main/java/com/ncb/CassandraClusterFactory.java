@@ -2,13 +2,15 @@ package com.ncb;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
-import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.Session;
 import java.beans.IntrospectionException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
@@ -16,24 +18,40 @@ import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.openide.util.NbPreferences;
 
-class CassandraClusterFactory extends ChildFactory.Detachable<Cluster>
-        implements Host.StateListener {
+class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implements Host.StateListener {
 
-    Cluster connectToCluster;
-    Session session;
+    private List<Cluster> clusters;
+    private Session session;
+    private ChangeListener listener;
 
     public CassandraClusterFactory() {
-        this.connectToCluster = connectToCluster();
+        this.clusters = new ArrayList<Cluster>();
+    }
+
+    @Override
+    protected void addNotify() {
+        PropertiesNotifier.addChangeListener(listener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ev) {
+                clusters.add(connectToCluster());
+                refresh(true);
+            }
+        });
+    }
+
+    @Override
+    protected void removeNotify() {
+        if (listener != null) {
+            PropertiesNotifier.removeChangeListener(listener);
+            listener = null;
+        }
     }
 
     @Override
     protected boolean createKeys(List<Cluster> list) {
-//        Metadata md = this.connectToCluster.getMetadata();
-//        list.addAll(md.getAllHosts());
-        list.add(connectToCluster);
+        list.addAll(clusters);
         return true;
     }
 
@@ -68,8 +86,14 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster>
     }
 
     private Cluster connectToCluster() {
+        String cassandraCluster = NbPreferences.forModule(CassandraTab.class).get("cassandraCluster", "127.0.0.1:9042");
+        String[] split = cassandraCluster.split(":");
+        String host = split[0];
+        String port = split[1];
+        System.out.println("host = " + host);
+        System.out.println("port = " + port);
         Cluster cluster = Cluster.builder().
-                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress("127.0.0.1", 9042))).
+                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress(host, Integer.valueOf(port)))).
                 build();
         cluster.register(this);
         session = cluster.connect();
