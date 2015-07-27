@@ -5,6 +5,7 @@ import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
 import java.beans.IntrospectionException;
 import java.util.List;
+import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
@@ -63,28 +64,40 @@ public class CassandraContainerFactory
     }
 
     private class HostNode extends BeanNode {
-        
         @StaticResource
         private final String CASSANDRANODEICON = "com/ncb/cassandra-node.png";
-
         public HostNode(CassandraContainerFactory.Key key, Cluster cluster) throws IntrospectionException {
             super(key, Children.create(new HostChildFactory(cluster), true), Lookups.singleton(key));
             setDisplayName("Nodes");
             setShortDescription("Nodes");
             setIconBaseWithExtension(CASSANDRANODEICON);
         }
+        @Override
+        public Action getPreferredAction() {
+            return null;
+        }
+        @Override
+        public Action[] getActions(boolean context) {
+            return null;
+        }
     }
 
     private class KeySpaceNode extends BeanNode {
-
         @StaticResource
         private final String CASSANDRADATAICON = "com/ncb/cassandra-data.png";
-        
         public KeySpaceNode(CassandraContainerFactory.Key key, Cluster cluster) throws IntrospectionException {
             super(key, Children.create(new KeyspaceContainerChildFactory(cluster, session), true), Lookups.singleton(key));
             setDisplayName("Keyspaces");
             setShortDescription("Data");
             setIconBaseWithExtension(CASSANDRADATAICON);
+        }
+        @Override
+        public Action getPreferredAction() {
+            return null;
+        }
+        @Override
+        public Action[] getActions(boolean context) {
+            return null;
         }
     }
 

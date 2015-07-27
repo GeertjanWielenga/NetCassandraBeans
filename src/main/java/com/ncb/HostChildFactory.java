@@ -4,6 +4,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import java.beans.IntrospectionException;
 import java.util.List;
+import javax.swing.Action;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
@@ -25,15 +26,29 @@ class HostChildFactory extends ChildFactory<Host> {
 
     @Override
     protected Node createNodeForKey(Host key) {
-        BeanNode node = null;
+        HostNode node = null;
         try {
-            node = new BeanNode(key);
-            node.setDisplayName(key.getAddress().getHostName());
-            node.setShortDescription(key.getAddress().getHostAddress());
+            node = new HostNode(key);
         } catch (IntrospectionException ex) {
             Exceptions.printStackTrace(ex);
         }
         return node;
+    }
+
+    private class HostNode extends BeanNode {
+        public HostNode(Host key) throws IntrospectionException {
+            super(key);
+            setDisplayName(key.getAddress().getHostName());
+            setShortDescription(key.getAddress().getHostAddress());
+        }
+        @Override
+        public Action getPreferredAction() {
+            return null;
+        }
+        @Override
+        public Action[] getActions(boolean context) {
+            return null;
+        }
     }
 
 }

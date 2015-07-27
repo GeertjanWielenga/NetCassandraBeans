@@ -65,6 +65,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
     }
 
     private class UserTableView extends TopComponent {
+
         private UserTableView(TableMetadata tmd, ResultSet rs) {
             setDisplayName(tmd.getName() + " in " + tmd.getKeyspace().getName());
             setLayout(new BorderLayout());
@@ -101,7 +102,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                         list.add(String.valueOf(r.getDouble(name)));
                     }
                     if (cd.getType() == DataType.list(DataType.text())) {
-                         list.add(r.getString(name));
+                        list.add(r.getString(name));
                     }
                     if (cd.getType() == DataType.timestamp()) {
                         list.add(r.getDate(name).toString());
@@ -114,7 +115,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
             associateLookup(Lookups.singleton(rs));
         }
     }
-    
+
     public static String reorderTimeUUId(String originalTimeUUID) {
         StringTokenizer tokens = new StringTokenizer(originalTimeUUID, "-");
         if (tokens.countTokens() == 5) {
@@ -131,6 +132,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
     private class UserTableNode extends BeanNode {
 
         private final TableMetadata tmd;
+        private final String CASSANDRAUSERDETAILICON = "com/ncb/cassandra-keystore-user-detail.png";
 
         public UserTableNode(TableMetadata tmd) throws IntrospectionException {
             this(tmd, new InstanceContent());
@@ -153,6 +155,8 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                 }
             });
             setDisplayName(tmd.getName());
+            setShortDescription("Double click to view data of these tables.");
+            setIconBaseWithExtension(CASSANDRAUSERDETAILICON);
         }
 
         private TopComponent findTopComponent(ResultSet rs) {
@@ -183,6 +187,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                     writeColumnNames(rs, writer);
                     writeColumnContent(rs, writer);
                 }
+
                 private void writeColumnNames(ResultSet rs, OutputWriter writer) {
                     int lengthOfNames = 0;
                     ColumnDefinitions columnDefinitions = rs.getColumnDefinitions();
@@ -202,6 +207,7 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                     }
                     writer.println("");
                 }
+
                 private void writeColumnContent(ResultSet rs, OutputWriter writer) {
                     for (Row r : rs.all()) {
                         String content = "undefined";

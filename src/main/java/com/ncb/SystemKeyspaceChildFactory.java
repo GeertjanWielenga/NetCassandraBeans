@@ -5,6 +5,8 @@ import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.Session;
 import java.beans.IntrospectionException;
 import java.util.List;
+import javax.swing.Action;
+import org.netbeans.api.annotations.common.StaticResource;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
@@ -45,9 +47,21 @@ class SystemKeyspaceChildFactory extends ChildFactory<KeyspaceMetadata> {
     }
 
     private class SystemKeyspaceNode extends BeanNode {
+        @StaticResource
+        private final String CASSANDRAUSERDETAILICON = "com/ncb/cassandra-keyspace.png";
         public SystemKeyspaceNode(KeyspaceMetadata bean) throws IntrospectionException {
             super(bean, Children.create(new SystemTableChildFactory(bean, session), true), Lookups.singleton(bean));
             setDisplayName(bean.getName());
+            setShortDescription("System Keystore");
+            setIconBaseWithExtension(CASSANDRAUSERDETAILICON);
+        }
+        @Override
+        public Action getPreferredAction() {
+            return null;
+        }
+        @Override
+        public Action[] getActions(boolean context) {
+            return null;
         }
     }
 
