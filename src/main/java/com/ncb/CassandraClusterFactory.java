@@ -8,6 +8,7 @@ import java.beans.IntrospectionException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.annotations.common.StaticResource;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
@@ -48,9 +49,14 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster>
 
     private class ClusterNode extends BeanNode {
 
+        @StaticResource
+        private final String CASSANDRACLUSTERICON = "com/ncb/cassandra-cluster.png";
+        
         public ClusterNode(Cluster key) throws IntrospectionException {
             super(key, Children.create(new CassandraContainerFactory(key, session), true));
             setDisplayName(key.getClusterName());
+            setShortDescription("Clusters");
+            setIconBaseWithExtension(CASSANDRACLUSTERICON);
         }
     }
 
