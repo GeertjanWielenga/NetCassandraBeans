@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JScrollPane;
@@ -88,10 +89,10 @@ class UserTableChildFactory extends ChildFactory<TableMetadata> {
                         list.add(r.getUUID(name).toString());
                     }
                     if (cd.getType() == DataType.counter()) {
-                        list.add(String.valueOf(r.getInt(name)));
+                        list.add(String.valueOf(r.getLong(name)));
                     }
                     if (cd.getType() == DataType.timeuuid()) {
-                        list.add(r.getString(name));
+                        list.add(r.getUUID(name).toString());
                     }
                     if (cd.getType() == DataType.cfloat()) {
                         list.add(String.valueOf(r.getFloat(name)));
