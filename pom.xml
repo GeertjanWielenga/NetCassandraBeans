@@ -5,6 +5,10 @@
     <artifactId>NBCassandra</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
+    <organization>
+        <name>Geertjan Wielenga</name>
+        <url>http://blogs.oracle.com/geertjan</url>
+    </organization>
     <build>
         <plugins>
             <plugin>
