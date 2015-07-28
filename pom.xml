@@ -139,6 +139,12 @@
             <artifactId>org-openide-actions</artifactId>
             <version>RELEASE80</version>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-db</artifactId>
+            <version>RELEASE80</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
