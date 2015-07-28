@@ -32,17 +32,8 @@ public class CassandraNodeProvider extends NodeProvider {
     @Override
     protected synchronized void initialize() {
         List<Node> newList = new ArrayList<Node>();
-        newList.add(new UniverseNode());
+        newList.add(new CassandraRootNode());
         setNodes(newList);
-    }
-
-    private class UniverseNode extends AbstractNode {
-
-        public UniverseNode() {
-            super(Children.LEAF);
-            setDisplayName("Universe");
-        }
-
     }
 
 }

@@ -17,15 +17,14 @@ import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
-@ServicesTabNodeRegistration(
-        displayName = "Cassandra", 
-        name = "Cassandra", 
-        iconResource = "com/ncb/logo.png", 
-        shortDescription = "Cassandra")
-public class CassandraTab
-        extends AbstractNode {
+//@ServicesTabNodeRegistration(
+//        displayName = "Cassandra", 
+//        name = "Cassandra", 
+//        iconResource = "com/ncb/logo.png", 
+//        shortDescription = "Cassandra")
+public class CassandraRootNode extends AbstractNode {
 
-    public CassandraTab() {
+    public CassandraRootNode() {
         super(Children.create(new CassandraClusterFactory(), true));
         setDisplayName("Cassandra");
         setShortDescription("Cassandra");
@@ -71,7 +70,7 @@ public class CassandraTab
                     DialogDisplayer.getDefault().notify(msg);
                     String value = msg.getInputText();
                     StatusDisplayer.getDefault().setStatusText(key+":"+value);
-                    NbPreferences.forModule(CassandraTab.class).put("cassandraCluster", key+":"+value);
+                    NbPreferences.forModule(CassandraRootNode.class).put("cassandraCluster", key+":"+value);
                     PropertiesNotifier.changed();
                 }
             }

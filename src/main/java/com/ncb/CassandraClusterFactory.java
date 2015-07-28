@@ -88,7 +88,7 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
     }
 
     private Cluster connectToCluster() {
-        String cassandraCluster = NbPreferences.forModule(CassandraTab.class).get("cassandraCluster", "127.0.0.1:9042");
+        String cassandraCluster = NbPreferences.forModule(CassandraRootNode.class).get("cassandraCluster", "127.0.0.1:9042");
         String[] split = cassandraCluster.split(":");
         String host = split[0];
         String port = split[1];
