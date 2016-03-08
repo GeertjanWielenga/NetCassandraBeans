@@ -4,4 +4,5 @@
 
 <img src="https://blogs.oracle.com/geertjan_images/resource/cassandra-couchbase-81-2.png" />
 
-<img style="border:1px solid black" src="https://blogs.oracle.com/geertjan/resource/beta-cassandra-plugin-2.png" />
+<img style="border:1px solid black" src="https://blogs.oracle.com/geertjan_images/resource/cassandra-couchbase-81-3.png
+" />
