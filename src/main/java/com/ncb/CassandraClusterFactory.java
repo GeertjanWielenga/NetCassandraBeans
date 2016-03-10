@@ -3,6 +3,7 @@ package com.ncb;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
+import com.ncb.rename.RenameContainerAction;
 import java.beans.IntrospectionException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implements Host.StateListener {
 
@@ -71,11 +74,22 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
     private class ClusterNode extends BeanNode {
         @StaticResource
         private final String CASSANDRACLUSTERICON = "com/ncb/cassandra-cluster.png";
-        public ClusterNode(Cluster key) throws IntrospectionException {
-            super(key, Children.create(new CassandraContainerFactory(key, session), true));
+        private final Cluster key;
+        private ClusterNode(Cluster key) throws IntrospectionException {
+            this(key, new InstanceContent());
+        }
+        public ClusterNode(Cluster key, InstanceContent ic) throws IntrospectionException {
+            super(key, Children.create(new CassandraContainerFactory(key, session), true), new AbstractLookup(ic));
+            this.key = key;
+            ic.add(key);
+            ic.add(this);
             setDisplayName(key.getClusterName());
             setShortDescription("Clusters");
             setIconBaseWithExtension(CASSANDRACLUSTERICON);
+        }
+        @Override
+        public boolean canRename() {
+            return true;
         }
         @Override
         public Action getPreferredAction() {
@@ -83,7 +97,10 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         }
         @Override
         public Action[] getActions(boolean context) {
-            return new Action[]{SystemAction.get(OpenLocalExplorerAction.class)};
+            return new Action[]{
+                SystemAction.get(RenameContainerAction.class),
+                SystemAction.get(OpenLocalExplorerAction.class)
+            };
         }
     }
 
