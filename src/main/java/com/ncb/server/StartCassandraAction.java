@@ -18,8 +18,7 @@ public final class StartCassandraAction extends NodeAction {
 
     @Override
     protected void performAction(Node[] nodes) {
-        Startable s = CentralLookup.getDefault().lookup(Startable.class);
-        s.start();
+        CentralLookup.getDefault().lookup(Startable.class).start();
     }
 
     @Override
