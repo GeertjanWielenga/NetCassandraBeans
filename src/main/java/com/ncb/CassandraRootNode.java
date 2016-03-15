@@ -1,19 +1,20 @@
 package com.ncb;
 
+import com.ncb.server.CentralLookup;
+import com.ncb.server.Startable;
+import com.ncb.server.Stoppable;
 import java.io.IOException;
 import javax.swing.Action;
-import org.netbeans.api.core.ide.ServicesTabNodeRegistration;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.actions.NewAction;
 import org.openide.actions.OpenLocalExplorerAction;
-import org.openide.actions.PropertiesAction;
-import org.openide.actions.ToolsAction;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
+import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 
@@ -23,17 +24,42 @@ import org.openide.util.datatransfer.NewType;
 //        iconResource = "com/ncb/logo.png", 
 //        shortDescription = "Cassandra")
 public class CassandraRootNode extends AbstractNode {
-
+    
+    private CouchbaseServerStartable csStart = new CouchbaseServerStartable();
+    private CouchbaseServerStoppable csStop = new CouchbaseServerStoppable();
+    
+    
     public CassandraRootNode() {
         super(Children.create(new CassandraClusterFactory(), true));
+        CentralLookup.getDefault().add(csStart);
         setDisplayName("Cassandra");
         setShortDescription("Cassandra");
         setIconBaseWithExtension("com/ncb/logo.png");
     }
     
+    private class CouchbaseServerStartable implements Startable {
+        @Override
+        public void start() {
+            CentralLookup.getDefault().remove(csStart);
+            StatusDisplayer.getDefault().setStatusText("Starting...");
+            CentralLookup.getDefault().add(csStop);
+        }
+    }
+    
+    private class CouchbaseServerStoppable implements Stoppable {
+        @Override
+        public void stop() {
+            CentralLookup.getDefault().remove(csStop);
+            StatusDisplayer.getDefault().setStatusText("Stopping...");
+            CentralLookup.getDefault().add(csStart);
+        }
+    }
+    
     @Override
     public Action[] getActions(boolean context) {
         Action[] result = new Action[]{
+            Utilities.actionsForPath("Actions/CouchbaseServer").get(0),
+            Utilities.actionsForPath("Actions/CouchbaseServer").get(1),
             SystemAction.get(NewAction.class),
             null,
             SystemAction.get(OpenLocalExplorerAction.class)};
