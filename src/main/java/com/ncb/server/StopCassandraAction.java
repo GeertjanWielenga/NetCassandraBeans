@@ -18,8 +18,7 @@ public final class StopCassandraAction extends NodeAction {
 
     @Override
     protected void performAction(Node[] nodes) {
-        Stoppable s = CentralLookup.getDefault().lookup(Stoppable.class);
-        s.stop();
+        CentralLookup.getDefault().lookup(Stoppable.class).stop();
     }
 
     @Override
