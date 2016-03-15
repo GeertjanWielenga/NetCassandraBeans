@@ -8,7 +8,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.actions.NodeAction;
 
 @ActionID(
-        category = "CouchbaseServer",
+        category = "CassandraServer",
         id = "org.sim.stop.StopCassandraAction")
 @ActionRegistration(
         lazy = false,

@@ -25,8 +25,8 @@ import org.openide.util.datatransfer.NewType;
 //        shortDescription = "Cassandra")
 public class CassandraRootNode extends AbstractNode {
     
-    private CouchbaseServerStartable csStart = new CouchbaseServerStartable();
-    private CouchbaseServerStoppable csStop = new CouchbaseServerStoppable();
+    private CassandraServerStartable csStart = new CassandraServerStartable();
+    private CassandraServerStoppable csStop = new CassandraServerStoppable();
     
     
     public CassandraRootNode() {
@@ -37,7 +37,7 @@ public class CassandraRootNode extends AbstractNode {
         setIconBaseWithExtension("com/ncb/logo.png");
     }
     
-    private class CouchbaseServerStartable implements Startable {
+    private class CassandraServerStartable implements Startable {
         @Override
         public void start() {
             CentralLookup.getDefault().remove(csStart);
@@ -46,7 +46,7 @@ public class CassandraRootNode extends AbstractNode {
         }
     }
     
-    private class CouchbaseServerStoppable implements Stoppable {
+    private class CassandraServerStoppable implements Stoppable {
         @Override
         public void stop() {
             CentralLookup.getDefault().remove(csStop);
@@ -58,8 +58,8 @@ public class CassandraRootNode extends AbstractNode {
     @Override
     public Action[] getActions(boolean context) {
         Action[] result = new Action[]{
-            Utilities.actionsForPath("Actions/CouchbaseServer").get(0),
-            Utilities.actionsForPath("Actions/CouchbaseServer").get(1),
+            Utilities.actionsForPath("Actions/CassandraServer").get(0),
+            Utilities.actionsForPath("Actions/CassandraServer").get(1),
             SystemAction.get(NewAction.class),
             null,
             SystemAction.get(OpenLocalExplorerAction.class)};
