@@ -1,6 +1,7 @@
 package com.ncb;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Cluster.Builder;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
 import com.ncb.rename.RenameContainerAction;
@@ -72,12 +73,15 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
     }
 
     private class ClusterNode extends BeanNode {
+
         @StaticResource
         private final String CASSANDRACLUSTERICON = "com/ncb/cassandra-cluster.png";
         private final Cluster key;
+
         private ClusterNode(Cluster key) throws IntrospectionException {
             this(key, new InstanceContent());
         }
+
         public ClusterNode(Cluster key, InstanceContent ic) throws IntrospectionException {
             super(key, Children.create(new CassandraContainerFactory(key, session), true), new AbstractLookup(ic));
             this.key = key;
@@ -87,14 +91,17 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
             setShortDescription("Clusters");
             setIconBaseWithExtension(CASSANDRACLUSTERICON);
         }
+
         @Override
         public boolean canRename() {
             return true;
         }
+
         @Override
         public Action getPreferredAction() {
             return null;
         }
+
         @Override
         public Action[] getActions(boolean context) {
             return new Action[]{
@@ -111,9 +118,16 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         String port = split[1];
         System.out.println("host = " + host);
         System.out.println("port = " + port);
-        Cluster cluster = Cluster.builder().
-                addContactPointsWithPorts(Collections.singleton(new InetSocketAddress(host, Integer.valueOf(port)))).
-                build();
+        String clusterAuth = NbPreferences.forModule(CassandraRootNode.class).get(host + ":" + port, null);
+        Builder builder = Cluster.builder();
+        builder.addContactPointsWithPorts(Collections.singleton(new InetSocketAddress(host, Integer.valueOf(port))));
+        if (clusterAuth != null) {
+            String[] split2 = clusterAuth.split(":");
+            String user = split2[0];
+            String pass = split2[1];
+            builder.withCredentials(user, pass);
+        }
+        Cluster cluster = builder.build();
         cluster.register(this);
         session = cluster.connect();
         System.out.println("Connected to cluster " + cluster.getClusterName());
