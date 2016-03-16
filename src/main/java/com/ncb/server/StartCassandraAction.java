@@ -11,6 +11,7 @@ import org.openide.util.actions.NodeAction;
         category = "CassandraServer",
         id = "org.sim.start.StartCassandraAction")
 @ActionRegistration(
+        asynchronous = false,
         lazy = false,
         displayName = "#CTL_StartCassandraAction")
 @Messages("CTL_StartCassandraAction=Start Server")
