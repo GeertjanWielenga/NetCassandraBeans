@@ -118,10 +118,11 @@ public class CassandraContainerFactory
     }
 
     @Override
-    public void onSuspected(Host host) {
-        refresh(true);
-        System.out.println("suspected: " + host);
-        StatusDisplayer.getDefault().setStatusText("suspected: " + host);
+    public void onRegister(Cluster clstr) {
+    }
+
+    @Override
+    public void onUnregister(Cluster clstr) {
     }
 
     @Override

@@ -33,9 +33,7 @@ class ColumnChildFactory extends ChildFactory<ColumnMetadata> {
             node = new BeanNode(key);
             String type = key.getType().getName().name();
             String name = key.getName();
-            String table = key.getTable().getName();
             node.setDisplayName(name + " ("+type+")");
-            node.setShortDescription(table);
         } catch (IntrospectionException ex) {
             Exceptions.printStackTrace(ex);
         }
