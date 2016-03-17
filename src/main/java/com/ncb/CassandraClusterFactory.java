@@ -6,6 +6,8 @@ import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
 import com.ncb.rename.RenameContainerAction;
 import java.beans.IntrospectionException;
+import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,19 +17,24 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.openide.actions.DeleteAction;
 import org.openide.actions.OpenLocalExplorerAction;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeListener;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
-class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implements Host.StateListener {
+class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implements Host.StateListener, NodeListener {
 
     private List<Cluster> clusters;
     private Session session;
@@ -70,11 +77,26 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         ClusterNode node = null;
         try {
             node = new ClusterNode(key);
+            node.addNodeListener(this);
         } catch (IntrospectionException ex) {
             Exceptions.printStackTrace(ex);
         }
         return node;
     }
+
+    @Override
+    public void childrenAdded(NodeMemberEvent nme) {}
+    @Override
+    public void childrenRemoved(NodeMemberEvent nme) {}
+    @Override
+    public void childrenReordered(NodeReorderEvent nre) {}
+    @Override
+    public void nodeDestroyed(NodeEvent ev) {
+        clusters.remove(ev.getNode().getLookup().lookup(Cluster.class));
+        refresh(true);
+    }
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {}
 
     private class ClusterNode extends BeanNode {
 
@@ -110,11 +132,23 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         public Action[] getActions(boolean context) {
             return new Action[]{
                 SystemAction.get(RenameContainerAction.class),
+                SystemAction.get(DeleteAction.class),
                 SystemAction.get(OpenLocalExplorerAction.class)
             };
         }
-    }
 
+        @Override
+        public boolean canDestroy() {
+            return true;
+        }
+
+        @Override
+        public void destroy() throws IOException {
+            fireNodeDestroyed();
+        }
+
+    }
+    
     private Cluster connectToCluster() {
         String cassandraCluster = NbPreferences.forModule(CassandraRootNode.class).get("cassandraCluster", "127.0.0.1:9042");
         String[] split = cassandraCluster.split(":");
