@@ -58,8 +58,8 @@ public class CassandraRootNode extends AbstractNode {
     @Override
     public Action[] getActions(boolean context) {
         Action[] result = new Action[]{
-            Utilities.actionsForPath("Actions/CassandraServer").get(0),
-            Utilities.actionsForPath("Actions/CassandraServer").get(1),
+//            Utilities.actionsForPath("Actions/CassandraServer").get(0),
+//            Utilities.actionsForPath("Actions/CassandraServer").get(1),
             SystemAction.get(NewAction.class),
             null,
             SystemAction.get(OpenLocalExplorerAction.class)};
