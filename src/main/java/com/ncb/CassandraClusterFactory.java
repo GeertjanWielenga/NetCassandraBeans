@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
@@ -41,8 +42,11 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         PropertiesNotifier.addChangeListener(listener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ev) {
-                clusters.add(connectToCluster());
-                refresh(true);
+                Cluster c = connectToCluster();
+                if (c != null && !c.isClosed()) {
+                    clusters.add(c);
+                    refresh(true);
+                }
             }
         });
     }
@@ -129,7 +133,11 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
         }
         Cluster cluster = builder.build();
         cluster.register(this);
-        session = cluster.connect();
+        try {
+            session = cluster.connect();
+        } catch (com.datastax.driver.core.exceptions.NoHostAvailableException e) {
+            JOptionPane.showMessageDialog(null, "Please start Cassandra first!");
+        }
         System.out.println("Connected to cluster " + cluster.getClusterName());
         return cluster;
     }
@@ -151,7 +159,7 @@ class CassandraClusterFactory extends ChildFactory.Detachable<Cluster> implement
     @Override
     public void onRegister(Cluster clstr) {
     }
-    
+
     @Override
     public void onUnregister(Cluster clstr) {
     }
